@@ -3,16 +3,14 @@
     <h1>HISTORY DATA</h1>
     <div class="charts">
       <div class="chart-1">
-        <h3>Monitoring Bagian Atas</h3>
-        <TemperatureAtasHistory/>
-        <HumidityAtasHistory/>
+        <h3>History Monitoring Temperatur</h3>
+        <temperatureHistory/>
       </div>
     </div>
     <div class="charts">
-      <div class="chart-2">
-        <h3>Monitoring Bagian Bawah</h3>
-        <temperatureBawahHistory/>
-        <HumidityBawahHistory/>
+      <div class="chart-1">
+        <h3>History Monitoring Kelembapan</h3>
+        <HumidityHistory/>
       </div>
     </div>
     <div class="tombol_3">
@@ -22,15 +20,13 @@
 </template>
 
 <script>
-import HumidityAtasHistory from '../chart_history/HumidityAtasHistory.vue';
-import TemperatureAtasHistory from '../chart_history/TemperatureAtasHistory.vue';
-import TemperatureBawahHistory from '../chart_history/TemperatureBawahHistory.vue';
-import HumidityBawahHistory from '../chart_history/HumidityBawahHistory.vue';
+import HumidityHistory from '../chart_history/HumidityHistory.vue';
+import TemperatureHistory from '../chart_history/TemperatureHistory.vue';
 import axios from 'axios';
 
 export default {
   name: 'Home',
-  components: {TemperatureAtasHistory, HumidityAtasHistory, TemperatureBawahHistory, HumidityBawahHistory},
+  components: {TemperatureHistory, HumidityHistory},
   methods: {
     DeleteData() {
       axios.post('http://localhost:3000/delete-data')
@@ -54,7 +50,7 @@ export default {
 
 <style>
 #about,
-    TemperatureBawah, TemperatureAtas, HumidityBawah, HumidityAtas {
+    Temperature, humidity {
   display: flex;
   flex-wrap: wrap;
 }
@@ -75,13 +71,6 @@ export default {
 }
 
 .chart-1{
-  background: #fff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: - 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-.chart-2{
   background: #fff;
   padding: 10px;
   border-radius: 5px;

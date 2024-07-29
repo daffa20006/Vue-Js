@@ -1,7 +1,7 @@
 <template>
     <div>
-      <p>{{ displayHours }}:{{ displayMinutes }}:{{ displaySeconds }}</p>
-      <p v-if="noDataMessage">{{ noDataMessage }}</p>
+        <p>{{ displayHours }}:{{ displayMinutes }}:{{ displaySeconds }}</p>
+        <p v-if="noDataMessage">{{ noDataMessage }}</p>
     </div>
 </template>
 
@@ -18,6 +18,7 @@ export default {
             timer: null,
             end: null,
             noDataMessage: "", // Variable to store message if no data is received
+            dataCheckInterval: null,
         };
     },
     computed: {
@@ -61,7 +62,6 @@ export default {
                     this.notifyTimerFinished();
                     return;
                 }
-
                 const hours = Math.floor(distance / this._hours);
                 const minutes = Math.floor((distance % this._hours) / this._minutes);
                 const seconds = Math.floor((distance % this._minutes) / this._seconds);
@@ -72,8 +72,8 @@ export default {
         },
         startTimer() {
             const now = new Date();
-            this.end = new Date(now.getTime() + 240 * this._minutes); // Set timer for 240 minutes (4 hours) from now
-            localStorage.setItem('end', this.end); // Store the end time in localStorage
+            this.end = new Date(now.getTime() + 240  * this._minutes); // Set timer for 240 minutes (4 hours) from now
+            localStorage.setItem('end', this.end.toISOString()); // Store the end time in localStorage in ISO format
             if (!this.timer) {
                 this.showRemaining();
             }
@@ -100,7 +100,6 @@ export default {
             }
         },
         notifyTimerFinished() {
-            // You can replace this with any notification logic you prefer
             Swal.fire({
                 title: "Berhasil",
                 text: "Waktu pengering gabah telah berhasil dilakukan",
@@ -117,7 +116,7 @@ export default {
                     const currentTime = new Date();
                     const timeDiff = (currentTime - latestTimestamp) / 1000; // Time difference in seconds
 
-                    if (timeDiff <= 60) { // Check if the latest data is within the last minute
+                    if (timeDiff <= 600) { // Check if the latest data is within the last minute
                         if (!this.timer && !localStorage.getItem('end')) {
                             this.startTimer(); // Start the timer if it is not already running and no end time is stored
                         }

@@ -1,6 +1,6 @@
 <template>
     <div>
-      <canvas id="HumidityBawah" ref="chartRef" width="400" height="100"></canvas>
+      <canvas id="Humidity" ref="chartRef" width="400" height="100"></canvas>
     </div>
   </template>
   
@@ -16,18 +16,18 @@
   Chart.register(...registerables, annotationPlugin);
   
   export default {
-    name: 'HumidityBawah',
+    name: 'Humidity',
     setup() {
       const chartRef = ref<HTMLCanvasElement | null>(null);
-      const socket = io('http://18.138.199.217:3000');
-      let humidityBawahChart: Chart | undefined;
+      const socket = io('http://localhost:3000');
+      let humidityChart: Chart | undefined;
   
       const createChart = (data: any) => {
         console.log('Creating chart with data:', data);
         if (chartRef.value) {
           const ctx = chartRef.value.getContext('2d');
           if (ctx) {
-            humidityBawahChart = new Chart(ctx, {
+            humidityChart = new Chart(ctx, {
               type: 'line',
               data: {
                 labels: data.timestamps,
@@ -36,30 +36,43 @@
                     label: 'Sensor 1',
                     backgroundColor: '#009FB7',
                     borderColor: '#009FB7',
-                    data: data.sensor3_humidity,
+                    data: data.sensor1_humidity,
                   },
                   {
                     label: 'Sensor 2',
                     backgroundColor: '#04F06A',
                     borderColor: '#04F06A',
-                    data: data.sensor4_humidity,
+                    data: data.sensor2_humidity,
                   },
                   {
                     label: 'Sensor 3',
                     backgroundColor: '#FED766',
                     borderColor: '#FED766',
-                    data: data.sensor5_humidity,
+                    data: data.sensor3_humidity,
                   },
                   {
                     label: 'Sensor 4',
-                    backgroundColor: '#F8C7CC',
-                    borderColor: '#F8C7CC',
+                    backgroundColor: '#FF0063',
+                    borderColor: '#FF0063',
+                    data: data.sensor4_humidity,
+                  },
+                  {
+                    label: 'Sensor 5',
+                    backgroundColor: '#744FC6',
+                    borderColor: '#744FC6',
+                    data: data.sensor5_humidity,
+                  },
+                  {
+                    label: 'Sensor 6',
+                    backgroundColor: '#17301C',
+                    borderColor: '17301C',
                     data: data.sensor6_humidity,
                   },
                 ],
               },
               options: {
                 responsive: true,
+                devicePixelRatio: 2,
                 aspectRatio: 3,
                 scales: {
                   x: {
@@ -72,7 +85,7 @@
                       },
                     },
                        ticks: {
-                       stepSize: 5,
+                       stepSize: 10,
                        },
                     title: {
                       display: true,
@@ -99,18 +112,22 @@
   
       const updateChart = (newData: any) => {
         console.log('Updating chart with data:', newData);
-        if (humidityBawahChart && humidityBawahChart.data) {
+        if (humidityChart && humidityChart.data) {
           // Merge new data with existing data
-          let combinedData = (humidityBawahChart.data.labels as string []).map((timestamp, index) => ({
+          let combinedData = (humidityChart.data.labels as string []).map((timestamp, index) => ({
             timestamp,
-            sensor3_humidity: humidityBawahChart?.data.datasets[0].data[index] as number,
-            sensor4_humidity: humidityBawahChart?.data.datasets[1].data[index] as number,
-            sensor5_humidity: humidityBawahChart?.data.datasets[2].data[index] as number,
-            sensor6_humidity: humidityBawahChart?.data.datasets[3].data[index] as number,
+            sensor1_humidity: humidityChart?.data.datasets[0].data[index] as number,
+            sensor2_humidity: humidityChart?.data.datasets[1].data[index] as number,
+            sensor3_humidity: humidityChart?.data.datasets[2].data[index] as number,
+            sensor4_humidity: humidityChart?.data.datasets[3].data[index] as number,
+            sensor5_humidity: humidityChart?.data.datasets[4].data[index] as number,
+            sensor6_humidity: humidityChart?.data.datasets[5].data[index] as number,
           }));
 
           const newCombinedData = newData.timestamps.map((timestamp: string, index: number) => ({
           timestamp,
+          sensor1_humidity: newData.sensor1_humidity[index],
+          sensor2_humidity: newData.sensor2_humidity[index],
           sensor3_humidity: newData.sensor3_humidity[index],
           sensor4_humidity: newData.sensor4_humidity[index],
           sensor5_humidity: newData.sensor5_humidity[index],
@@ -127,25 +144,31 @@
             );
 
           const sortedLabelsH2 = combinedData.map(item => item.timestamp);
+          const sortedSensor1HData = combinedData.map(item => item.sensor1_humidity);
+          const sortedSensor2HData = combinedData.map(item => item.sensor2_humidity);
           const sortedSensor3HData = combinedData.map(item => item.sensor3_humidity);
           const sortedSensor4HData = combinedData.map(item => item.sensor4_humidity);
           const sortedSensor5HData = combinedData.map(item => item.sensor5_humidity);
           const sortedSensor6HData = combinedData.map(item => item.sensor6_humidity);
   
-          humidityBawahChart.data.labels = sortedLabelsH2;
-          humidityBawahChart.data.datasets[0].data = sortedSensor3HData;
-          humidityBawahChart.data.datasets[1].data = sortedSensor4HData;
-          humidityBawahChart.data.datasets[2].data = sortedSensor5HData;
-          humidityBawahChart.data.datasets[3].data = sortedSensor6HData;
-          humidityBawahChart.update();
+          humidityChart.data.labels = sortedLabelsH2;
+          humidityChart.data.datasets[0].data = sortedSensor1HData;
+          humidityChart.data.datasets[1].data = sortedSensor2HData;
+          humidityChart.data.datasets[2].data = sortedSensor3HData;
+          humidityChart.data.datasets[3].data = sortedSensor4HData;
+          humidityChart.data.datasets[4].data = sortedSensor5HData;
+          humidityChart.data.datasets[5].data = sortedSensor6HData;
+          humidityChart.update();
         }
       };
   
       onMounted(async () => {
         try {
-          const response = await axios.get('http://18.138.199.217:3000/api/sensor-data');
+          const response = await axios.get('http://localhost:3000/api/sensor-data');
           const data = {
             timestamps: response.data.map((row: any) => row.timestamp),
+            sensor1_humidity: response.data.map((row: any) => row.sensor1_humidity),
+            sensor2_humidity: response.data.map((row: any) => row.sensor2_humidity),
             sensor3_humidity: response.data.map((row: any) => row.sensor3_humidity),
             sensor4_humidity: response.data.map((row: any) => row.sensor4_humidity),
             sensor5_humidity: response.data.map((row: any) => row.sensor5_humidity),
@@ -158,6 +181,8 @@
           socket.on('sensorData', (data: any) => {
             const updatedData2H = {
               timestamps: Array.isArray(data) ? data.map((row: any) => row.timestamp) : [data.timestamp],
+              sensor1_humidity: Array.isArray(data) ? data.map((row: any) => row.sensor1_humidity) : [data.sensor1_humidity],
+              sensor2_humidity: Array.isArray(data) ? data.map((row: any) => row.sensor2_humidity) : [data.sensor2_humidity],
               sensor3_humidity: Array.isArray(data) ? data.map((row: any) => row.sensor3_humidity) : [data.sensor3_humidity],
               sensor4_humidity: Array.isArray(data) ? data.map((row: any) => row.sensor4_humidity) : [data.sensor4_humidity],
               sensor5_humidity: Array.isArray(data) ? data.map((row: any) => row.sensor5_humidity) : [data.sensor5_humidity],

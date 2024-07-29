@@ -1,6 +1,6 @@
 <template>
     <div>
-      <canvas id="TemperatureBawahHistory" ref="chartRef" width="400" height="100"></canvas>
+      <canvas id="Temperature" ref="chartRef" width="400" height="100"></canvas>
     </div>
   </template>
   
@@ -16,18 +16,18 @@
   Chart.register(...registerables, annotationPlugin);
   
   export default {
-    name: 'TemperatureBawahHistory',
+    name: 'Temperature',
     setup() {
       const chartRef = ref<HTMLCanvasElement | null>(null);
-      const socket = io('http://18.138.199.217:3000');
-      let temperatureBawahChart: Chart | undefined;
+      const socket = io('http://localhost:3000');
+      let temperatureChart: Chart | undefined;
   
       const createChart = (data: any) => {
         console.log('Creating chart with data:', data);
         if (chartRef.value) {
           const ctx = chartRef.value.getContext('2d');
           if (ctx) {
-            temperatureBawahChart = new Chart(ctx, {
+            temperatureChart = new Chart(ctx, {
               type: 'line',
               data: {
                 labels: data.timestamps,
@@ -42,7 +42,7 @@
                     const value = context.raw as number;
                     return value > 65 ? '#DE1A1A' : '#009FB7';
                   },
-                    data: data.sensor3_temperature,
+                    data: data.sensor1_temperature,
                   },
                   {
                     label: 'Sensor 2',
@@ -54,7 +54,7 @@
                     const value = context.raw as number;
                     return value > 65 ? '#DE1A1A' : '#04F06A';
                   },
-                    data: data.sensor4_temperature,
+                    data: data.sensor2_temperature,
                   },
                   {
                     label: 'Sensor 3',
@@ -66,17 +66,41 @@
                     const value = context.raw as number;
                     return value > 65 ? '#DE1A1A' : '#FED766';
                   },
-                    data: data.sensor5_temperature,
+                    data: data.sensor3_temperature,
                   },
                   {
                     label: 'Sensor 4',
                     backgroundColor: (context) => {
                     const value = context.raw as number;
-                    return value > 65 ? '#DE1A1A' : '#F8C7CC';
+                    return value > 65 ? '#DE1A1A' : '#FF0063';
                   },
                   borderColor: (context) => {
                     const value = context.raw as number;
-                    return value > 65 ? '#DE1A1A' : '#F8C7CC';
+                    return value > 65 ? '#DE1A1A' : '#FF0063';
+                  },
+                    data: data.sensor4_temperature,
+                  },
+                  {
+                    label: 'Sensor 5',
+                    backgroundColor: (context) => {
+                    const value = context.raw as number;
+                    return value > 65 ? '#DE1A1A' : '#744FC6';
+                  },
+                  borderColor: (context) => {
+                    const value = context.raw as number;
+                    return value > 65 ? '#DE1A1A' : '#744FC6';
+                  },
+                    data: data.sensor5_temperature,
+                  },
+                  {
+                    label: 'Sensor 6',
+                    backgroundColor: (context) => {
+                    const value = context.raw as number;
+                    return value > 65 ? '#DE1A1A' : '#17301C';
+                  },
+                  borderColor: (context) => {
+                    const value = context.raw as number;
+                    return value > 65 ? '#DE1A1A' : '#17301C';
                   },
                     data: data.sensor6_temperature,
                   },
@@ -85,6 +109,7 @@
               options: {
                 responsive: true,
                 aspectRatio: 3,
+                devicePixelRatio: 2,
                 scales: {
                   x: {
                     type: 'time',
@@ -96,7 +121,7 @@
                       },
                     },
                     ticks: {
-                    stepSize: 5,
+                    stepSize: 10,
                     },
                     title: {
                       display: true,
@@ -120,9 +145,9 @@
                         yMax: 60,
                         borderColor: '#DE1A1A',
                         borderWidth: 2,
-                        borderDash: [6, 6],
+                        borderDash: [8, 8],
                         label: {
-                          content: 'Threshold 60°C',
+                          content: '60°C',
                           display: true,
                           position: 'end',
                         },
@@ -142,20 +167,24 @@
   
       const updateChart = (newData: any) => {
         console.log('Updating chart with data:', newData);
-          if (temperatureBawahChart && temperatureBawahChart.data) {
+          if (temperatureChart && temperatureChart.data) {
             // Merge new data with existing data
-            let combinedData = (temperatureBawahChart.data.labels as string []).map((timestamp, index) =>({
+            let combinedData = (temperatureChart.data.labels as string []).map((timestamp, index) =>({
             timestamp,
-            sensor3_temperature: temperatureBawahChart?.data.datasets[0].data[index] as number,
-            sensor4_temperature: temperatureBawahChart?.data.datasets[1].data[index] as number,
-            sensor5_temperature: temperatureBawahChart?.data.datasets[2].data[index] as number,
-            sensor6_temperature: temperatureBawahChart?.data.datasets[3].data[index] as number,
+            sensor1_temperature: temperatureChart?.data.datasets[0].data[index] as number,
+            sensor2_temperature: temperatureChart?.data.datasets[1].data[index] as number,
+            sensor3_temperature: temperatureChart?.data.datasets[2].data[index] as number,
+            sensor4_temperature: temperatureChart?.data.datasets[3].data[index] as number,
+            sensor5_temperature: temperatureChart?.data.datasets[4].data[index] as number,
+            sensor6_temperature: temperatureChart?.data.datasets[5].data[index] as number,
           }));
 
         const newCombinedData = newData.timestamps.map((timestamp: string, index: number) => ({
           timestamp,
-          sensor3_temperature: newData.sensor3_temperature[index],
-          sensor4_temperature: newData.sensor4_temperature[index],
+          sensor1_temperature: newData.sensor3_temperature[index],
+          sensor2_temperature: newData.sensor4_temperature[index],
+          sensor3_temperature: newData.sensor5_temperature[index],
+          sensor4_temperature: newData.sensor6_temperature[index],
           sensor5_temperature: newData.sensor5_temperature[index],
           sensor6_temperature: newData.sensor6_temperature[index],
         }));
@@ -171,27 +200,33 @@
 
           // Pisahkan kembali data ke dalam array yang berbeda
           const sortedLabels2 = combinedData.map(item => item.timestamp);
+          const sortedSensor1Data = combinedData.map(item => item.sensor1_temperature);
+          const sortedSensor2Data = combinedData.map(item => item.sensor2_temperature);
           const sortedSensor3Data = combinedData.map(item => item.sensor3_temperature);
-          const sortedSensor4Data = combinedData.map(item => item.sensor4_temperature);
+          const sortedSensor4Data = combinedData.map(item => item.sensor4_temperature);  
           const sortedSensor5Data = combinedData.map(item => item.sensor5_temperature);
           const sortedSensor6Data = combinedData.map(item => item.sensor6_temperature);  
 
           // Update data chart
-          temperatureBawahChart.data.labels = sortedLabels2;
-          temperatureBawahChart.data.datasets[0].data = sortedSensor3Data;
-          temperatureBawahChart.data.datasets[1].data = sortedSensor4Data;
-          temperatureBawahChart.data.datasets[2].data = sortedSensor5Data;
-          temperatureBawahChart.data.datasets[3].data = sortedSensor6Data;
+          temperatureChart.data.labels = sortedLabels2;
+          temperatureChart.data.datasets[0].data = sortedSensor1Data;
+          temperatureChart.data.datasets[1].data = sortedSensor2Data;
+          temperatureChart.data.datasets[2].data = sortedSensor3Data;
+          temperatureChart.data.datasets[3].data = sortedSensor4Data;
+          temperatureChart.data.datasets[4].data = sortedSensor5Data;
+          temperatureChart.data.datasets[5].data = sortedSensor6Data;
 
-          temperatureBawahChart.update();
+          temperatureChart.update();
         }
       };
   
       onMounted(async () => {
         try {
-          const response = await axios.get('http://18.138.199.217:3000/api/copy-data');
+          const response = await axios.get('http://localhost:3000/api/sensor-data');
           const data = {
             timestamps: response.data.map((row: any) => row.timestamp),
+            sensor1_temperature: response.data.map((row: any) => row.sensor1_temperature),
+            sensor2_temperature: response.data.map((row: any) => row.sensor2_temperature),
             sensor3_temperature: response.data.map((row: any) => row.sensor3_temperature),
             sensor4_temperature: response.data.map((row: any) => row.sensor4_temperature),
             sensor5_temperature: response.data.map((row: any) => row.sensor5_temperature),
@@ -201,9 +236,11 @@
           console.log('Fetched data from API:', data);
           createChart(data);
   
-          socket.on('sensorDataHistory', (data: any) => {
+          socket.on('sensorData', (data: any) => {
             const updatedData2 = {
               timestamps: Array.isArray(data) ? data.map((row: any) => row.timestamp) : [data.timestamp],
+              sensor1_temperature: Array.isArray(data) ? data.map((row: any) => row.sensor1_temperature) : [data.sensor1_temperature],
+              sensor2_temperature: Array.isArray(data) ? data.map((row: any) => row.sensor2_temperature) : [data.sensor2_temperature],
               sensor3_temperature: Array.isArray(data) ? data.map((row: any) => row.sensor3_temperature) : [data.sensor3_temperature],
               sensor4_temperature: Array.isArray(data) ? data.map((row: any) => row.sensor4_temperature) : [data.sensor4_temperature],
               sensor5_temperature: Array.isArray(data) ? data.map((row: any) => row.sensor5_temperature) : [data.sensor5_temperature],

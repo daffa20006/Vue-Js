@@ -5,16 +5,14 @@
 	  <p>Real-Time Data Charts</p>
 	  <div class="charts">
 		<div class="chart-1">
-		  <h3>Monitoring Bagian Atas</h3>
-		  <TemperatureAtas/>
-		  <HumidityAtas/>
+		  <h3>Monitoring Temperatur</h3>
+		  <temperature/>
 		</div>
 	  </div>
 	  <div class="charts">
-		<div class="chart-2">
-		  <h3>Monitoring Bagian Bawah</h3>
-		  <temperatureBawah/>
-		  <HumidityBawah/>
+		<div class="chart-1">
+		  <h3>Monitoring Kelembapan</h3>
+		  <Humidity/>
 		</div>
 	  </div>
 	  <div class="tombol_3">
@@ -30,20 +28,17 @@
   </template>
   
   <script>
-  import HumidityAtas from '../chart/HumidityAtas.vue';
-  import TemperatureAtas from '../chart/TemperatureAtas.vue';
-  import TemperatureBawah from '../chart/TemperatureBawah.vue';
-  import HumidityBawah from '../chart/HumidityBawah.vue';
+  import Temperature from '../chart/Temperature.vue';
+  import Humidity from '../chart/Humidity.vue';
   import TimerTes from '../timer/TimerTes.vue';
   import axios from 'axios';
   
   export default {
 	name: 'Home',
-	components: {TemperatureAtas, HumidityAtas, TemperatureBawah, HumidityBawah, TimerTes},
+	components: {Temperature, Humidity, TimerTes},
 	methods: {
 	  CopyData() {
 		axios.post('http://localhost:3000/copy-data')
-		axios.post('http://18.138.199.217:3000/copy-data')
 		.then(response => {
 		  if (response.data.success) {
 			alert('Data telah Disimpan');
@@ -57,7 +52,7 @@
 		  });
 		},
 	  ResetData() {
-		axios.post('http://18.138.199.217:3000/reset-data')
+		axios.post('http://localhost:3000/reset-data')
 		.then(response => {
 		  if (response.data.success) {
 			alert('Data telah direset');
@@ -114,13 +109,6 @@
   }
   
   .chart-1{
-	background: #fff;
-	padding: 10px;
-	border-radius: 5px;
-	box-shadow: - 10px 25px rgba(0, 0, 0, 0.08);
-  }
-  
-  .chart-2{
 	background: #fff;
 	padding: 10px;
 	border-radius: 5px;
