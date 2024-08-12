@@ -56,6 +56,7 @@
 		.then(response => {
 		  if (response.data.success) {
 			alert('Data telah direset');
+			window.location.reload();
 		  } else {
 			alert('Data gagal direset')
 		  }
@@ -72,7 +73,8 @@
         	headers: {
           		'Content-Type': 'application/json'
         	}
-      	})
+      	}, window.location.reload(),
+	      )
       	.then(response => {
         	console.log('Response from backend:', response.data);
       		})

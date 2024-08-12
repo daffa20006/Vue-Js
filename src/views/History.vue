@@ -33,6 +33,7 @@ export default {
       .then(response => {
         if (response.data.success) {
           alert('Data telah dihapus');
+          window.location.reload();
         } else {
           alert('Data gagal dihapus')
         }
