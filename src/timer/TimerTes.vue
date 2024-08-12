@@ -116,7 +116,7 @@ export default {
                     const currentTime = new Date();
                     const timeDiff = (currentTime - latestTimestamp) / 1000; // Time difference in seconds
 
-                    if (timeDiff <= 600) { // Check if the latest data is within the last minute
+                    if (timeDiff <= 660) { // Check if the latest data is within the last minute
                         if (!this.timer && !localStorage.getItem('end')) {
                             this.startTimer(); // Start the timer if it is not already running and no end time is stored
                         }
